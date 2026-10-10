@@ -1,6 +1,6 @@
 [← Back to Alex's Portfolio](https://github.com/AlexB-128)
 # Wazuh SOC Lab
-A lab exploring Wazuh's SIEM and XDR capabilities with an emphasis on the detection and analysis phases of an incident response cycle.
+A lab exploring Wazuh's SIEM and XDR capabilities with an emphasis on the detection, analysis, and post-incident phases of an incident response cycle.
 
 ## Objective
 
@@ -53,3 +53,84 @@ MITRE Tactics: Credential Access
 
 ![syslog: User missed the password more than one time](screenshots/screenshot4.png)
 ![sshd: authentication failed.](screenshots/screenshot3.png)
+
+# Remediation
+
+To prevent SSH passwords being brute forced/guessed. Public key authentication should be implemented and password authentication should be turned off. 
+
+### Setting up SSH key authentication
+
+- The user attempting to connect to the SSH server must create a public/private key pair
+  ![Key pair creation](screenshots/screenshot7.png)
+- User copies their public key with the SSH server using ssh-copy-id
+  ![ssh-copy-id](screenshots/screenshot8.png)
+- SSH server places public key inside the authorized_keys file
+  ![authorized_keys file on SSH server](screenshots/screenshot10.png)
+- Before turning off password authentication we must verify we can log in with our public key
+  ![Logging in with SSH key](screenshots/screenshot9.png)
+
+- Confirmed - User can now log in with their public key
+
+
+### Hardening SSH Server config file
+
+- To turn off password authentication, you must edit the sshd_config file
+- sudo nano /etc/ssh/sshd_config
+
+- Uncomment PubkeyAuthentication and set to yes
+  ![PubKeyAuthentication](screenshots/screenshot11.png)
+
+- Uncomment PasswordAuthentication and set to no
+  ![PasswordAuthentication](screenshots/screenshot12.png)
+
+- If you don't use root login, uncomment and set PermitRootLogin to no
+  
+  ![PermitRootLogin](screenshots/screenshot13.png)
+
+- Save the file
+- For the changes to take effect you must restart the sshd service
+  ![sshd reload](screenshots/screenshot14.png)
+- Verify the changes are in effect by logging into your ssh server
+- Verify password authentication is disabled
+  ![Permission denied](screenshots/screenshot15.png)
+
+
+### Other Hardening Options
+
+- Another good idea is to edit the config file and change the default SSH port 22 to another port #.
+    - Changing the default SSH port can reduce automated attacks by avoiding bots that only scan for common ports like 22. This would require additional time and resources on the attackers end to discover the port number. 
+- You can also implement Fail2ban - this monitors log files and ban IP addresses that show malicious signs like repeated failed authentication attempts.
+    - This can reduce the rate of incorrect authentication attempts but will not be a substitute for weak authentication mechanisms.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
